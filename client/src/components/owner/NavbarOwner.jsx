@@ -1,18 +1,27 @@
 import React from 'react'
 import { assets } from '../../assets/assets'
 import { Link } from 'react-router-dom';
-import {useAppContext} from '../../context/AppContext'
+import { useAppContext } from '../../context/AppContext'
+import { motion } from 'motion/react' // Added motion for consistency
 
 const NavbarOwner = () => {
-    // Note: Once you connect your real backend, you will get this 'user' from AppContext
-    const {user }= useAppContext();
+    const { user } = useAppContext();
 
     return (
-        <div className='flex items-center justify-between px-6 md:px-10 py-4 text-gray-500 border-b border-borderColor bg-white sticky top-0 z-50'>
-           
-            <Link to='/'>
-                <img src={assets.logo} alt="logo" className='h-8 cursor-pointer' />
-            </Link>
+        <div className='flex items-center justify-between px-6 md:px-10 h-20 text-gray-500 border-b border-borderColor bg-white sticky top-0 z-50'>
+            
+            {/*  LOGO SECTION  */}
+            <div className='flex items-center relative h-full w-48 md:w-72'>
+                <Link to='/' className='absolute left-0'>
+                    <motion.img 
+                        whileHover={{ scale: 1.05 }}
+                        src={assets.logo} 
+                        alt="logo" 
+                        
+                        className='h-16 md:h-24 w-auto object-contain cursor-pointer scale-[1.8] md:scale-[2.2] origin-left -ml-2 md:-ml-6' 
+                    />
+                </Link>
+            </div>
 
             <div className='flex items-center gap-4'>
                 <p className='text-sm'>
@@ -26,4 +35,4 @@ const NavbarOwner = () => {
     )
 }
 
-export default NavbarOwner
+export default NavbarOwner;
