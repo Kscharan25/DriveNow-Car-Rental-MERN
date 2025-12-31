@@ -1,0 +1,90 @@
+import User from "../models/user.js"
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import Car from "../models/Car.js";
+
+const generateToken = (userId) => {
+    return jwt.sign(
+        { id: userId },   
+        process.env.JWT_SECRET,
+        { expiresIn: "7d" }
+    );
+};
+
+// Register User
+export const registerUser = async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+
+        if (!name || !email || !password || password.length < 8) {
+            return res.json({ success: false, message: 'Fill all fields. Password must be 8+ characters' });
+        }
+
+        const userExists = await User.findOne({ email: email.toLowerCase() });
+        if (userExists) {
+             return res.json({ success: false, message: 'User already exists' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = await User.create({ name, email: email.toLowerCase(), password: hashedPassword });
+        
+        const token = generateToken(user._id.toString());
+        
+        // Return success, token, AND user info
+        res.json({ 
+            success: true, 
+            token, 
+            user: { name: user.name, email: user.email, role: user.role } 
+        });
+
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+}
+
+// User Login
+export const loginUser = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ email: email.toLowerCase() });
+        
+        if (!user) {
+            return res.json({ success: false, message: 'User not found' });
+        }
+        
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.json({ success: false, message: 'Invalid Credentials' });
+        }
+        
+        const token = generateToken(user._id.toString());
+        
+        // Return success, token, AND user info
+        res.json({ 
+            success: true, 
+            token, 
+            user: { name: user.name, email: user.email, role: user.role } 
+        });
+
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+}
+
+export const getUserData = async (req, res) => {
+    try {
+        const { user } = req;
+        res.json({ success: true, user });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+}
+
+export const getCars = async (req, res) => {
+    try {
+        const cars = await Car.find({ isAvailable: true });
+        res.json({ success: true, cars });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+}
