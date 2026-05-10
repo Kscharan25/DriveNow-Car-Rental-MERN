@@ -12,15 +12,17 @@ export const protect = async (req, res, next) => {
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Attach user to request
-    req.user = await User.findById(decoded.id).select("-password");
+    // FIX: Standardize lookup
+    const user = await User.findById(decoded.id).select("-password");
 
-    if (!req.user) {
+    if (!user) {
       return res.status(401).json({ success: false, message: "User not found" });
     }
 
+    req.user = user; // Attach the full user object
     next();
   } catch (error) {
-    return res.status(401).json({ success: false, message: "Token invalid" });
+    console.error("Auth Error:", error.message);
+    return res.status(401).json({ success: false, message: "Session expired" });
   }
 };

@@ -7,48 +7,52 @@ export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
     const navigate = useNavigate();
-    const currency = import.meta.env.VITE_CURRENCY;
+    const currency = import.meta.env.VITE_CURRENCY || "$";
     const backendUrl = import.meta.env.VITE_BASE_URL?.trim();
 
     const [token, setToken] = useState(localStorage.getItem('token') || null);
     const [user, setUser] = useState(null);
     const [isOwner, setIsOwner] = useState(false);
-    const [showLogin, setShowLogin] = useState(false);
     const [pickupDate, setPickupDate] = useState('');
     const [returnDate, setReturnDate] = useState('');
     const [cars, setCars] = useState([]);
+    const [showLogin, setShowLogin] = useState(false);
 
-    // Set global default for all requests
+    // 1. Configure Axios Instance
     axios.defaults.baseURL = backendUrl;
 
-    const fetchUser = async (userToken) => {
-        if (!userToken) return; 
+    // 2. Interceptor Fix: Ensure token is always fresh from state or storage
+    useEffect(() => {
+        const interceptor = axios.interceptors.request.use((config) => {
+            const activeToken = token || localStorage.getItem('token');
+            if (activeToken) {
+                config.headers.Authorization = `Bearer ${activeToken}`;
+            }
+            return config;
+        });
+
+        return () => axios.interceptors.request.eject(interceptor);
+    }, [token]);
+
+    const fetchUser = async () => {
+        if (!token) return;
         try {
-            const { data } = await axios.get('/api/user/data', {
-                headers: { Authorization: `Bearer ${userToken}` } 
-            });
-            
+            const { data } = await axios.get('/api/user/data');
             if (data.success) {
                 setUser(data.user);
                 setIsOwner(data.user.role === 'owner');
             }
         } catch (error) {
-            if (error.response?.status === 401) {
-                logout();
-            }
+            if (error.response?.status === 401) logout();
         }
     };
 
     const fetchCars = async () => {
         try {
             const { data } = await axios.get('/api/user/cars');
-            if (data.success) {
-                setCars(data.cars);
-            } else {
-                toast.error(data.message);
-            }
+            if (data.success) setCars(data.cars);
         } catch (error) {
-            console.error("Fetch Cars Error:", error.message);
+            console.error(error);
         }
     };
 
@@ -57,42 +61,23 @@ export const AppProvider = ({ children }) => {
         setToken(null);
         setUser(null);
         setIsOwner(false);
-        delete axios.defaults.headers.common['Authorization'];
-        toast.success('Logged out successfully');
+        toast.success('Logged out');
         navigate('/');
     };
 
-    // Load initial data
     useEffect(() => {
         fetchCars();
-        if (token) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            fetchUser(token);
-        }
-    }, []);
-
-    // Sync token changes
-    useEffect(() => {
-        if (token) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            fetchUser(token);
-        } else {
-            delete axios.defaults.headers.common['Authorization'];
-        }
+        if (token) fetchUser();
     }, [token]);
 
     const value = {
         navigate, currency, axios, user, setUser, token, setToken, 
-        isOwner, setIsOwner, fetchUser, showLogin, setShowLogin, 
-        logout, fetchCars, cars, setCars, pickupDate, setPickupDate, 
-        returnDate, setReturnDate
+        isOwner, setIsOwner, logout, fetchCars, cars, pickupDate, 
+        setPickupDate, returnDate, setReturnDate,
+        showLogin, setShowLogin
     };
 
-    return (
-        <AppContext.Provider value={value}>
-            {children}
-        </AppContext.Provider>
-    );
+    return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 
 export const useAppContext = () => useContext(AppContext);

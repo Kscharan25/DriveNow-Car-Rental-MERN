@@ -3,7 +3,7 @@ import { assets } from "../assets/assets";
 import Title from "../components/Title";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
-import { motion, AnimatePresence } from "framer-motion"; // ✅ Import Framer Motion
+import { motion, AnimatePresence } from "framer-motion";
 
 const MyBookings = () => {
     const { axios, user, currency } = useAppContext();
@@ -35,7 +35,6 @@ const MyBookings = () => {
             animate={{ opacity: 1 }}
             className="px-6 md:px-16 lg:px-24 xl:px-32 2xl:px-48 mt-16 text-sm max-w-7xl mx-auto"
         >
-            {/* Header Animation */}
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -57,7 +56,7 @@ const MyBookings = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ 
                                     duration: 0.5, 
-                                    delay: index * 0.1 // ✅ Staggered appearance
+                                    delay: index * 0.1 
                                 }}
                                 className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 border border-borderColor rounded-lg mt-5 first:mt-12 bg-white shadow-sm hover:shadow-md transition-shadow"
                             >
@@ -65,7 +64,14 @@ const MyBookings = () => {
                                 {/* Car Image + Info */}
                                 <div className="md:col-span-1">
                                     <div className="rounded-md overflow-hidden mb-3">
-                                        <img src={booking.car?.image} alt="" className="w-full h-auto aspect-video object-cover" />
+                                        {/* Updated Image Source Logic */}
+                                        <img 
+                                            src={booking.car?.image?.startsWith('http') 
+                                                ? booking.car?.image 
+                                                : `${axios.defaults.baseURL}/${booking.car?.image}`} 
+                                            alt="Car" 
+                                            className="w-full h-auto aspect-video object-cover" 
+                                        />
                                     </div>
                                     <p className="text-lg font-medium mt-2">{booking.car?.brand} {booking.car?.model}</p>
                                     <p className="text-gray-500">{booking.car?.year} • {booking.car?.category} • {booking.car?.location}</p>

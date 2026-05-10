@@ -51,10 +51,10 @@ export const addCar = async (req, res) => {
         const fileBuffer = fs.readFileSync(req.file.path);
         const base64Image = fileBuffer.toString('base64');
 
-        const uploadResponse = await imagekit.upload({
+        const uploadResponse = await imagekit.files.upload({
             file: base64Image, 
             fileName: `car_${Date.now()}`,
-            folder: "car_rentals", // <--- This tells the API to put it in the cloud folder
+            folder: "car-rental", // <--- This tells the API to put it in the cloud folder
         });
 
         // ✅ MANUAL URL CONSTRUCTION

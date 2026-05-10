@@ -2,23 +2,27 @@ import React from 'react'
 import { assets } from '../../assets/assets'
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../../context/AppContext'
-import { motion } from 'motion/react' // Added motion for consistency
+import { motion } from 'motion/react'
 
 const NavbarOwner = () => {
     const { user } = useAppContext();
 
     return (
-        <div className='flex items-center justify-between px-6 md:px-10 h-20 text-gray-500 border-b border-borderColor bg-white sticky top-0 z-50'>
+        <div className='flex items-center justify-between px-6 md:px-10 h-20 text-gray-500 border-b border-borderColor bg-white sticky top-0 z-[60]'>
             
-            {/*  LOGO SECTION  */}
-            <div className='flex items-center relative h-full w-48 md:w-72'>
-                <Link to='/' className='absolute left-0'>
+            {/* 1. We set pointer-events-none on this container. 
+               2. We restrict the width strictly so it doesn't float over the sidebar.
+            */}
+            <div className='flex items-center relative h-full w-20 md:w-32 pointer-events-none z-10'>
+                <Link to='/' className='relative pointer-events-auto'>
                     <motion.img 
                         whileHover={{ scale: 1.05 }}
                         src={assets.logo} 
                         alt="logo" 
-                        
-                        className='h-16 md:h-24 w-auto object-contain cursor-pointer scale-[1.8] md:scale-[2.2] origin-left -ml-2 md:-ml-6' 
+                        /* The scale is huge, but 'pointer-events-auto' is only on the Link.
+                           By making the parent 'w-20', the 'leak' into the sidebar is cut off.
+                        */
+                        className='h-14 md:h-20 w-auto object-contain cursor-pointer scale-[1.8] md:scale-[2.2] origin-left -ml-2 md:-ml-6' 
                     />
                 </Link>
             </div>

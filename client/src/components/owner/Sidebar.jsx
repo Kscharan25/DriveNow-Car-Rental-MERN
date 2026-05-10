@@ -12,14 +12,11 @@ const Sidebar = () => {
   const updateImage = async () => {
     try {
       if (!image) return;
-
       const formData = new FormData();
       formData.append('image', image); 
 
       const { data } = await axios.post('/api/owner/update-image', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        }
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       if (data.success) {
@@ -30,13 +27,15 @@ const Sidebar = () => {
         toast.error(data.message);
       }
     } catch (error) {
-      console.error("Upload error:", error);
-      toast.error(error.response?.data?.message || "Error updating image");
+      toast.error("Error updating image");
     }
   };
 
   return (
-    <div className="relative min-h-screen md:flex flex-col items-center pt-8 max-w-13 md:max-w-60 w-full border-r border-borderColor text-sm bg-white">
+    /* IMPORTANT: z-[70] makes the sidebar sit physically ABOVE the 
+       navbar (z-60), so the logo cannot be hovered through the sidebar.
+    */
+    <div className="relative z-[70] min-h-screen md:flex flex-col items-center pt-8 max-w-13 md:max-w-60 w-full border-r border-borderColor text-sm bg-white">
       <div className="group relative">
         <label htmlFor="image" className="cursor-pointer">
           <img 

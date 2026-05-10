@@ -2,6 +2,7 @@ import express from 'express';
 import 'dotenv/config';
 import cors from 'cors';
 import fs from 'fs'; 
+import path from 'path'; 
 import connectDB from './configs/db.js';
 import userRouter from './routes/userRoutes.js';
 import ownerRouter from './routes/ownerRoutes.js'; 
@@ -17,7 +18,9 @@ if (!fs.existsSync('./uploads')) {
     fs.mkdirSync('./uploads');
 }
 
-// Updated CORS: Added 5174 and 5175 to the whitelist
+// Middleware
+app.use(express.json());
+
 const allowedOrigins = [
     "http://localhost:5173", 
     "http://127.0.0.1:5173", 
@@ -29,24 +32,26 @@ const allowedOrigins = [
 
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps)
         if (!origin) return callback(null, true);
-        
         if (allowedOrigins.includes(origin)) {
             return callback(null, true);
         } else {
-            console.log("Blocked by CORS: ", origin); // This helps you debug in the terminal
-            return callback(new Error('CORS Policy Error'), false);
+            return callback(new Error('Not allowed by CORS'));
         }
     },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
 
-app.use(express.json());
+// --- STATIC FILES ---
+// This allows the frontend to access images stored in the uploads folder
+app.use('/uploads', express.static('uploads'));
 
 // --- ROUTES ---
 app.get('/', (req, res) => res.send('API Working'));
+
+// Check your controller: if getCars is in userRouter, this is correct.
+// If getCars is in ownerRouter, the frontend should call /api/owner/cars.
 app.use('/api/user', userRouter);
 app.use('/api/owner', ownerRouter); 
 app.use('/api/bookings', bookingRouter);

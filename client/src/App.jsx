@@ -1,54 +1,60 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { Route, Routes, useLocation, Navigate } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
+import { useAppContext } from './context/AppContext'
+
+// Components
 import Navbar from './components/Navbar'
-import { Route,Routes, useLocation } from 'react-router-dom'
+import Footer from './components/Footer'
+import Login from './components/Login'
+
+// Pages
 import Home from './pages/Home'
 import CarDetails from './pages/CarDetails'
 import MyBookings from './pages/MyBookings'
 import Cars from './pages/Cars'
-import Footer from './components/Footer'
+
+// Owner Pages
 import Layout from './pages/owner/Layout'
 import Dashboard from './pages/owner/Dashboard'
 import AddCar from './pages/owner/AddCar'
 import ManageCars from './pages/owner/ManageCars'
 import ManageBookings from './pages/owner/ManageBookings'
-import { Navigate } from "react-router-dom";
-import Login from './components/Login'
-import {Toaster} from 'react-hot-toast'
-import { useAppContext } from './context/AppContext'
 
-const App=()=>{
+const App = () => {
+  const { showLogin } = useAppContext()
+  const location = useLocation()
+  const isOwnerPath = location.pathname.startsWith('/owner')
 
-  const {showLogin} = useAppContext()
-  const isOwnerPath=useLocation().pathname.startsWith('/owner')
-
-
-  return(
+  return (
     <>
-    <Toaster/>
+      <Toaster />
+      
+      {/* Login Modal toggled via Context State */}
       {showLogin && <Login />}
       
-      {!isOwnerPath && <Navbar/>}
-
+      {/* Only show Navbar if not in Owner Dashboard */}
+      {!isOwnerPath && <Navbar />}
 
       <Routes>
-        <Route path='/' element={<Home/>}/>
-        <Route path='/car-details/:id' element={<CarDetails/>}/>
-        <Route path='/cars' element={<Cars/>}/>
-        <Route path='/my-bookings' element={<MyBookings/>}/>
+        {/* User Routes */}
+        <Route path='/' element={<Home />} />
+        <Route path='/car-details/:id' element={<CarDetails />} />
+        <Route path='/cars' element={<Cars />} />
+        <Route path='/my-bookings' element={<MyBookings />} />
 
-        {/* Routes for Car owners(Onwer dshboard) */}
-
-        <Route path='/owner' element={<Layout/>}>
-         <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path='dashboard' element={<Dashboard/>}/>
-        <Route path='add-car' element={<AddCar/>}/>
-        <Route path='manage-cars' element={<ManageCars/>}/>
-        <Route path='manage-bookings' element={<ManageBookings/>}/>
+        {/* Owner Dashboard Routes */}
+        <Route path='/owner' element={<Layout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path='dashboard' element={<Dashboard />} />
+          <Route path='add-car' element={<AddCar />} />
+          <Route path='manage-cars' element={<ManageCars />} />
+          <Route path='manage-bookings' element={<ManageBookings />} />
         </Route>
       </Routes>
 
-      {!isOwnerPath && <Footer/> } {/* this footer will display on all the pages except dashboard */}
-      
+      {/* Only show Footer if not in Owner Dashboard */}
+      {!isOwnerPath && <Footer />}
     </>
   )
 }
