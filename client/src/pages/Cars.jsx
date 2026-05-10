@@ -67,7 +67,7 @@ const Cars = () => {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: 'easeOut' }}
-                className="flex flex-col items-center py-20 bg-light max-md:px-4"
+                className="flex flex-col items-center pt-10 pb-12 bg-light max-md:px-4"
             >
                 <Title title='Available cars' subTitle='Browse our selection of premium vehicles' />
 
@@ -101,7 +101,7 @@ const Cars = () => {
             </motion.div>
                     
             {/* Cars Grid Section */}
-            <div className="px-6 md:px-16 lg:px-24 xl:px-32 mt-10">
+            <div className="px-6 md:px-16 lg:px-24 xl:px-32 mt-6">
                 <div className="max-w-7xl mx-auto xl:px-20">
                     
                     {/* Animated Results Counter */}
